@@ -216,9 +216,14 @@ const Dashboard = () => {
                         <Badge className="bg-green-500 text-white">
                           {completion.completionTime}
                         </Badge>
-                        <Badge variant="outline">
-                          {puzzle?.difficulty || 'N/A'}
-                        </Badge>
+                        <Button
+                          onClick={() => navigate(`/puzzle/${completion.puzzleId}`)}
+                          size="sm"
+                          className="bg-purple-500 hover:bg-purple-600 text-white"
+                        >
+                          <Play size={12} className="mr-1" />
+                          Play Again
+                        </Button>
                       </div>
                     </div>
                   );
