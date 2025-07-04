@@ -443,6 +443,13 @@ const PuzzlePage = () => {
             </div>
             
             <Button
+              onClick={testCompletion}
+              className="bg-green-500 hover:bg-green-600 text-white border border-white/30"
+            >
+              Test Complete
+            </Button>
+            
+            <Button
               onClick={resetPuzzle}
               className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/30"
             >
