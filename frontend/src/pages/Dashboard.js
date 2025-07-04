@@ -226,61 +226,6 @@ const Dashboard = () => {
             )}
           </CardContent>
         </Card>
-
-        {/* Puzzle Progress */}
-        <Card className="bg-white/95 backdrop-blur-sm border-2 border-white/50">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-gray-800">
-              Puzzle Progress
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {puzzles.map((puzzle) => {
-                const isCompleted = stats.completedPuzzles.includes(puzzle.id);
-                const completionTime = stats.puzzleTimes[puzzle.id];
-                
-                return (
-                  <div
-                    key={puzzle.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="text-2xl">{puzzle.emoji}</div>
-                      <div>
-                        <h3 className="font-semibold text-gray-800">
-                          {puzzle.title}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {puzzle.difficulty} • {puzzle.pieces} pieces
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      {isCompleted ? (
-                        <>
-                          <Badge className="bg-green-500 text-white">
-                            <Trophy size={12} className="mr-1" />
-                            Completed
-                          </Badge>
-                          {completionTime && (
-                            <Badge variant="outline">
-                              {completionTime}
-                            </Badge>
-                          )}
-                        </>
-                      ) : (
-                        <Badge variant="secondary">
-                          Not Started
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
