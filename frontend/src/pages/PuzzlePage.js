@@ -343,6 +343,9 @@ const PuzzlePage = () => {
     console.log('Completing puzzle with time:', completionTime, 'seconds:', actualElapsedSeconds);
     console.log('State currentTime was:', currentTime, 'but actual elapsed is:', actualElapsedSeconds);
     
+    // Store the final completion time for the modal
+    setFinalCompletionTime(completionTime);
+    setFinalCompletionSeconds(actualElapsedSeconds);
     setGameState('completed');
     
     // Save completion to localStorage using actual elapsed time
