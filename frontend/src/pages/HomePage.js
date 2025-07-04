@@ -187,25 +187,6 @@ const HomePage = () => {
             );
           })}
         </div>
-
-        {/* Fun Facts */}
-        <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/30">
-          <h3 className="text-2xl font-bold text-white mb-4">🌟 Fun Facts 🌟</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-white">
-              <div className="text-3xl font-bold">{completionStats.totalAttempts}</div>
-              <div className="text-sm opacity-90">Total Attempts</div>
-            </div>
-            <div className="text-white">
-              <div className="text-3xl font-bold">{completionStats.averageTime}</div>
-              <div className="text-sm opacity-90">Average Time</div>
-            </div>
-            <div className="text-white">
-              <div className="text-3xl font-bold">{completionStats.favoriteTime}</div>
-              <div className="text-sm opacity-90">Favorite Play Time</div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
