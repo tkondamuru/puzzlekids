@@ -56,7 +56,7 @@ const PuzzlePage = () => {
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [startTime, gameState]);
+  }, [startTimeRef.current, gameState]);
 
   const loadPuzzle = async () => {
     try {
