@@ -365,6 +365,8 @@ const PuzzlePage = () => {
     setGameState('playing');
     setStartTime(Date.now());
     setCurrentTime(0);
+    setFinalCompletionTime('00:00');
+    setFinalCompletionSeconds(0);
     
     // Reset SVG state
     if (svgInstanceRef.current) {
