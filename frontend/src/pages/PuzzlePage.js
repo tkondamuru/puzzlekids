@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { ArrowLeft, RotateCcw, CheckCircle2, Clock, Trophy, Sparkles } from 'lucide-react';
+import { ArrowLeft, RotateCcw, CheckCircle2, Clock, Trophy, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getPuzzleById } from '../utils/mockData';
 import { savePuzzleCompletion, getStoredStats } from '../utils/localStorage';
@@ -11,7 +11,8 @@ import { savePuzzleCompletion, getStoredStats } from '../utils/localStorage';
 const PuzzlePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const puzzle = getPuzzleById(id);
+  const [puzzle, setPuzzle] = useState(null);
+  const [loading, setLoading] = useState(true);
   
   const [gameState, setGameState] = useState('playing'); // 'playing', 'completed'
   const [startTime, setStartTime] = useState(null);
@@ -19,6 +20,10 @@ const PuzzlePage = () => {
   const [draggedPiece, setDraggedPiece] = useState(null);
   const [puzzlePieces, setPuzzlePieces] = useState([]);
   const [completedPieces, setCompletedPieces] = useState([]);
+
+  useEffect(() => {
+    loadPuzzle();
+  }, [id]);
 
   useEffect(() => {
     if (puzzle) {
@@ -36,7 +41,22 @@ const PuzzlePage = () => {
     }
   }, [startTime, gameState]);
 
+  const loadPuzzle = async () => {
+    try {
+      setLoading(true);
+      const puzzleData = await getPuzzleById(id);
+      setPuzzle(puzzleData);
+    } catch (error) {
+      console.error('Error loading puzzle:', error);
+      toast.error('Failed to load puzzle');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const initializePuzzle = () => {
+    if (!puzzle) return;
+    
     const pieces = [];
     for (let i = 0; i < puzzle.pieces; i++) {
       pieces.push({
@@ -107,6 +127,18 @@ const PuzzlePage = () => {
     initializePuzzle();
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400 p-4 flex items-center justify-center">
+        <Card className="p-8 text-center bg-white/95 backdrop-blur-sm">
+          <Loader2 className="mx-auto mb-4 animate-spin text-purple-500" size={48} />
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Loading Puzzle...</h2>
+          <p className="text-gray-600">Getting your puzzle ready!</p>
+        </Card>
+      </div>
+    );
+  }
+
   if (!puzzle) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400 p-4 flex items-center justify-center">
@@ -172,6 +204,39 @@ const PuzzlePage = () => {
               </Badge>
             </div>
           </CardHeader>
+        </Card>
+
+        {/* Large Puzzle Image Display */}
+        <Card className="mb-6 bg-white/95 backdrop-blur-sm border-2 border-white/50">
+          <CardHeader>
+            <CardTitle className="text-xl font-bold text-gray-800">
+              Complete Image
+            </CardTitle>
+            <p className="text-gray-600 text-sm">
+              This is what your puzzle will look like when completed!
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="aspect-square bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border-2 border-dashed border-gray-300 p-4 max-w-md mx-auto overflow-hidden">
+              {puzzle.imgUrl ? (
+                <img 
+                  src={puzzle.imgUrl} 
+                  alt={puzzle.title}
+                  className="w-full h-full object-contain rounded-lg"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div 
+                className="w-full h-full flex items-center justify-center text-8xl" 
+                style={{ display: puzzle.imgUrl ? 'none' : 'flex' }}
+              >
+                {puzzle.emoji}
+              </div>
+            </div>
+          </CardContent>
         </Card>
 
         {/* Puzzle Game Area */}
