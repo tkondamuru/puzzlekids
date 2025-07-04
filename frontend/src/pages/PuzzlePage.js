@@ -16,7 +16,7 @@ const PuzzlePage = () => {
   const [loading, setLoading] = useState(true);
   const [svgLoading, setSvgLoading] = useState(true);
   const [gameState, setGameState] = useState('playing'); // 'playing', 'completed'
-  const [startTime, setStartTime] = useState(null);
+  const startTimeRef = useRef(null); // Use a ref to persist the start time across re-renders
   const [currentTime, setCurrentTime] = useState(0);
   const [finalCompletionTime, setFinalCompletionTime] = useState('00:00');
   const [finalCompletionSeconds, setFinalCompletionSeconds] = useState(0);
