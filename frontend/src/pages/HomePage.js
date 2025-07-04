@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
@@ -13,12 +13,23 @@ const HomePage = () => {
   const [error, setError] = useState(null);
   const [stats, setStats] = useState(getStoredStats());
   const completionStats = getCompletionStats();
+  const location = useLocation();
 
   useEffect(() => {
     loadPuzzles();
-    // Refresh stats when component mounts
-    setStats(getStoredStats());
+    // Refresh stats when component mounts or when returning from puzzle page
+    refreshStats();
   }, []);
+
+  useEffect(() => {
+    // Refresh stats when location changes (returning from puzzle page)
+    refreshStats();
+  }, [location.pathname]);
+
+  const refreshStats = () => {
+    const updatedStats = getStoredStats();
+    setStats(updatedStats);
+  };
 
   const loadPuzzles = async () => {
     try {
