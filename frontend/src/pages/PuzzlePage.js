@@ -338,12 +338,18 @@ const PuzzlePage = () => {
 
   const completePuzzle = () => {
     // Calculate actual elapsed time directly instead of relying on state
+    if (startTime === null) {
+      console.error('Start time is null at puzzle completion');
+      return;
+    }
+    
     const actualElapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
     const completionTime = formatTime(actualElapsedSeconds);
-    
+
     console.log('Completing puzzle with time:', completionTime, 'seconds:', actualElapsedSeconds);
     console.log('State currentTime was:', currentTime, 'but actual elapsed is:', actualElapsedSeconds);
-    
+    console.log('StartTime was:', startTime, 'Current time:', Date.now());
+
     // Store the final completion time for the modal
     setFinalCompletionTime(completionTime);
     setFinalCompletionSeconds(actualElapsedSeconds);
