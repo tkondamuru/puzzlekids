@@ -19,6 +19,17 @@ const HomePage = () => {
     loadPuzzles();
     // Refresh stats when component mounts or when returning from puzzle page
     refreshStats();
+    
+    // Add focus event listener to refresh stats when user returns to tab
+    const handleFocus = () => {
+      refreshStats();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   useEffect(() => {
