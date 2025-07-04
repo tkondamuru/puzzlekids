@@ -1,34 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { ArrowLeft, RotateCcw, CheckCircle2, Clock, Trophy, Sparkles, Loader2 } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Clock, Trophy, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getPuzzleById } from '../utils/mockData';
 import { savePuzzleCompletion, getStoredStats } from '../utils/localStorage';
+import { SVG } from '@svgdotjs/svg.js';
 
 const PuzzlePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [puzzle, setPuzzle] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+  const [svgLoading, setSvgLoading] = useState(true);
   const [gameState, setGameState] = useState('playing'); // 'playing', 'completed'
   const [startTime, setStartTime] = useState(null);
   const [currentTime, setCurrentTime] = useState(0);
-  const [draggedPiece, setDraggedPiece] = useState(null);
-  const [puzzlePieces, setPuzzlePieces] = useState([]);
-  const [completedPieces, setCompletedPieces] = useState([]);
+  
+  // SVG related refs and state
+  const svgContainerRef = useRef(null);
+  const svgInstanceRef = useRef(null);
+  const partsRef = useRef({});
+  const floatThumbRef = useRef({});
+  const debugTextRef = useRef(null);
+
+  const celebrationMessages = [
+    "🎉 Complete! 🎉", "🌟 Awesome! 🌟", "🎯 Nailed It!", "🏁 You Did It!",
+    "🚀 Well Done!", "🥳 Great Job!", "💫 Puzzle Solved!", "🔥 That Was Fast!",
+    "🎈 Fantastic!", "✅ All Set!", "💥 Boom! Complete!", "👏 Bravo!",
+    "🧠 Smart Move!", "🎮 Victory!", "✨ Excellent Work!", "🎊 You Rock!",
+    "🎵 That Was Smooth!", "🍭 Sweet Success!", "🧩 Puzzle Master!",
+    "🌈 Magic Move!", "🏆 Champion!", "🎨 Masterpiece!", "🎤 Mic Drop!",
+    "😎 Too Cool!", "🔓 Unlocked!", "🦄 Nailed the Magic!", "🥇 First Place!",
+    "🌟 Superstar!", "🛸 Out of This World!"
+  ];
 
   useEffect(() => {
     loadPuzzle();
   }, [id]);
 
   useEffect(() => {
-    if (puzzle) {
-      setStartTime(Date.now());
-      initializePuzzle();
+    if (puzzle && puzzle.imgUrl) {
+      loadSVGContent();
     }
   }, [puzzle]);
 
@@ -54,54 +69,213 @@ const PuzzlePage = () => {
     }
   };
 
-  const initializePuzzle = () => {
-    if (!puzzle) return;
-    
-    const pieces = [];
-    for (let i = 0; i < puzzle.pieces; i++) {
-      pieces.push({
-        id: i,
-        correctPosition: i,
-        currentPosition: Math.floor(Math.random() * puzzle.pieces),
-        isPlaced: false,
-        rotation: Math.floor(Math.random() * 4) * 90,
-      });
+  const loadSVGContent = async () => {
+    try {
+      setSvgLoading(true);
+      const response = await fetch(puzzle.imgUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const svgText = await response.text();
+      
+      if (svgContainerRef.current) {
+        // Clear previous content
+        svgContainerRef.current.innerHTML = '';
+        
+        // Inject SVG content
+        svgContainerRef.current.innerHTML = svgText;
+        
+        // Initialize SVG.js after content is loaded
+        setTimeout(() => {
+          initializeSVGInteraction();
+          setStartTime(Date.now());
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error loading SVG:', error);
+      toast.error('Failed to load puzzle image');
+      // Fallback to emoji display
+      if (svgContainerRef.current) {
+        svgContainerRef.current.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: center; height: 400px; font-size: 8rem;">
+            ${puzzle.emoji}
+          </div>
+        `;
+      }
+    } finally {
+      setSvgLoading(false);
     }
-    setPuzzlePieces(pieces);
-    setCompletedPieces([]);
+  };
+
+  const getSVGCoordsFromEvent = (e) => {
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return svgInstanceRef.current.point(clientX, clientY);
+  };
+
+  const setupDrag = (dragId) => {
+    const thumb = SVG(`#rt${dragId}`);
+    const target = SVG(`#g${dragId}`);
+    
+    if (!thumb.node || !target.node) return;
+    
+    const trayPos = thumb.cx();
+    const trayY = thumb.cy();
+    let floating = null;
+
+    thumb.on('mousedown touchstart', (e) => {
+      e.preventDefault();
+      
+      if (floatThumbRef.current['last'] != null) {
+        floatThumbRef.current['last'].remove();
+        floatThumbRef.current['last'] = null;
+      }
+      
+      const { x: startX, y: startY } = getSVGCoordsFromEvent(e);
+      floating = target.clone().addTo(svgInstanceRef.current).opacity(0.4).front();
+      floating.center(startX, startY);
+      floating.show();
+      floatThumbRef.current['last'] = floating;
+
+      function moveHandler(ev) {
+        const { x, y } = getSVGCoordsFromEvent(ev);
+        floating.center(x, y);
+      }
+
+      function upHandler(ev) {
+        document.removeEventListener("mousemove", moveHandler);
+        document.removeEventListener("mouseup", upHandler);
+        document.removeEventListener('touchmove', moveHandler);
+        document.removeEventListener('touchend', upHandler);
+
+        const dist = Math.hypot(
+          floating.cx() - partsRef.current[dragId].center.x,
+          floating.cy() - partsRef.current[dragId].center.y
+        );
+
+        if (debugTextRef.current) {
+          debugTextRef.current.text(`target: ${floating.cx()}, ${floating.cy()}`);
+        }
+
+        if (dist < 50) {
+          target.show();
+          floating.remove();
+          thumb.parent().hide();
+          
+          // Check if all thumbs are hidden
+          const remaining = svgInstanceRef.current.find('[id^=rt]').filter(el => el.parent().visible());
+          if (remaining.length === 0) {
+            showPuzzleComplete();
+          }
+        } else {
+          floating.animate(300).center(trayPos, trayY).after(() => {
+            floating.remove();
+          });
+        }
+      }
+
+      document.addEventListener("mousemove", moveHandler);
+      document.addEventListener("mouseup", upHandler);
+      document.addEventListener("touchmove", moveHandler);
+      document.addEventListener("touchend", upHandler);
+    });
+  };
+
+  const initAllDraggables = () => {
+    for (let i = 1; i <= 18; i++) {
+      const target = SVG(`#g${i}`);
+      if (!target.node) continue;
+      
+      const bbox = target.bbox();
+      partsRef.current[i] = {
+        target: target,
+        center: { x: bbox.cx, y: bbox.cy }
+      };
+      
+      setupDrag(i);
+      target.hide();
+    }
+  };
+
+  const showPuzzleComplete = () => {
+    const puzzleRoot = SVG('#puzzleRoot');
+    if (!puzzleRoot.node) return;
+
+    // Shine animation: pulse scale + opacity
+    puzzleRoot.animate(600, '<>')
+      .scale(0.95)
+      .opacity(0.9)
+      .loop(3, true)
+      .after(() => {
+        puzzleRoot.animate(600).scale(1).opacity(1);
+        const message = celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
+        
+        svgInstanceRef.current.text(message)
+          .move(150, 30)
+          .font({ size: 35, anchor: 'middle', weight: 'bold', family: 'Comic Sans MS, cursive' })
+          .fill('#28a745')
+          .animate(1000).opacity(1);
+        
+        // Complete puzzle in React state
+        completePuzzle();
+      });
+  };
+
+  const addThumbHitboxes = () => {
+    for (let i = 1; i <= 18; i++) {
+      const group = SVG(`#t${i}`);
+      if (!group.node) continue;
+
+      const bbox = group.bbox();
+      const padding = 5;
+
+      const bg = svgInstanceRef.current.rect(
+        bbox.width + padding * 2,
+        bbox.height + padding * 2
+      )
+        .move(bbox.x - padding, bbox.y - padding)
+        .fill('#fff')
+        .opacity(0.01)
+        .attr({ id: `rt${i}` })
+        .back();
+
+      group.add(bg);
+    }
+  };
+
+  const initializeSVGInteraction = () => {
+    try {
+      // Find the SVG element in the container
+      const svgElement = svgContainerRef.current.querySelector('svg');
+      if (!svgElement) {
+        console.error('SVG element not found');
+        return;
+      }
+
+      // Set an ID for SVG.js to target
+      svgElement.id = 'puzzleSvg';
+      
+      // Initialize SVG.js
+      svgInstanceRef.current = SVG('#puzzleSvg');
+      
+      // Add debug text
+      debugTextRef.current = svgInstanceRef.current.text('').move(10, 760).font({ size: 16 }).fill('#f00');
+      
+      // Initialize drag functionality
+      addThumbHitboxes();
+      initAllDraggables();
+      
+      console.log('SVG interaction initialized successfully');
+    } catch (error) {
+      console.error('Error initializing SVG interaction:', error);
+    }
   };
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const handlePieceClick = (piece) => {
-    if (gameState !== 'playing') return;
-    
-    // Simulate puzzle piece placement
-    const newPuzzlePieces = puzzlePieces.map(p => {
-      if (p.id === piece.id) {
-        const newRotation = (p.rotation + 90) % 360;
-        const isCorrect = newRotation === 0 && p.currentPosition === p.correctPosition;
-        return {
-          ...p,
-          rotation: newRotation,
-          isPlaced: isCorrect
-        };
-      }
-      return p;
-    });
-    
-    setPuzzlePieces(newPuzzlePieces);
-    
-    const newCompletedPieces = newPuzzlePieces.filter(p => p.isPlaced);
-    setCompletedPieces(newCompletedPieces);
-    
-    if (newCompletedPieces.length === puzzle.pieces) {
-      completePuzzle();
-    }
   };
 
   const completePuzzle = () => {
@@ -124,7 +298,29 @@ const PuzzlePage = () => {
     setGameState('playing');
     setStartTime(Date.now());
     setCurrentTime(0);
-    initializePuzzle();
+    
+    // Reset SVG state
+    if (svgInstanceRef.current) {
+      // Clear any floating pieces
+      if (floatThumbRef.current['last']) {
+        floatThumbRef.current['last'].remove();
+        floatThumbRef.current['last'] = null;
+      }
+      
+      // Reset all parts to hidden and thumbs to visible
+      for (let i = 1; i <= 18; i++) {
+        const target = SVG(`#g${i}`);
+        const thumb = SVG(`#rt${i}`);
+        if (target.node) target.hide();
+        if (thumb.node) thumb.parent().show();
+      }
+      
+      // Clear any celebration text
+      const textElements = svgInstanceRef.current.find('text').filter(el => 
+        el.text() && celebrationMessages.includes(el.text())
+      );
+      textElements.forEach(el => el.remove());
+    }
   };
 
   if (loading) {
@@ -199,14 +395,17 @@ const PuzzlePage = () => {
             <div className="flex items-center gap-2 mt-4">
               <Badge variant="secondary">{puzzle.difficulty}</Badge>
               <Badge variant="outline">{puzzle.pieces} pieces</Badge>
-              <Badge className="bg-green-500 text-white">
-                {completedPieces.length}/{puzzle.pieces} completed
-              </Badge>
+              {gameState === 'completed' && (
+                <Badge className="bg-green-500 text-white">
+                  <Trophy size={12} className="mr-1" />
+                  Completed!
+                </Badge>
+              )}
             </div>
           </CardHeader>
         </Card>
 
-        {/* Large Puzzle Image Display */}
+        {/* Interactive SVG Puzzle */}
         <Card className="mb-6 bg-white/95 backdrop-blur-sm border-2 border-white/50">
           <CardHeader>
             <CardTitle className="text-xl font-bold text-gray-800">
@@ -217,25 +416,17 @@ const PuzzlePage = () => {
             </p>
           </CardHeader>
           <CardContent>
-            <div className="rounded-lg border-2 border-dashed border-gray-300 overflow-hidden">
-              {puzzle.imgUrl ? (
-                <img 
-                  src={puzzle.imgUrl} 
-                  alt={puzzle.title}
-                  className="w-full h-full object-contain rounded-lg"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
-                />
-              ) : null}
-              <div 
-                className="w-full h-full flex items-center justify-center text-8xl" 
-                style={{ display: puzzle.imgUrl ? 'none' : 'flex' }}
-              >
-                {puzzle.emoji}
+            {svgLoading && (
+              <div className="flex items-center justify-center h-96">
+                <Loader2 className="animate-spin text-purple-500" size={48} />
+                <span className="ml-4 text-gray-600">Loading interactive puzzle...</span>
               </div>
-            </div>
+            )}
+            <div 
+              ref={svgContainerRef}
+              className="rounded-lg border-2 border-dashed border-gray-300 overflow-hidden min-h-96"
+              style={{ display: svgLoading ? 'none' : 'block' }}
+            />
           </CardContent>
         </Card>
 
