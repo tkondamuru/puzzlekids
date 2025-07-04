@@ -224,23 +224,27 @@ const PuzzlePage = () => {
 
   const addThumbHitboxes = () => {
     for (let i = 1; i <= 18; i++) {
-      const group = SVG(`#t${i}`);
-      if (!group.node) continue;
+      try {
+        const group = SVG(`#t${i}`);
+        if (!group || !group.node) continue;
 
-      const bbox = group.bbox();
-      const padding = 5;
+        const bbox = group.bbox();
+        const padding = 5;
 
-      const bg = svgInstanceRef.current.rect(
-        bbox.width + padding * 2,
-        bbox.height + padding * 2
-      )
-        .move(bbox.x - padding, bbox.y - padding)
-        .fill('#fff')
-        .opacity(0.01)
-        .attr({ id: `rt${i}` })
-        .back();
+        const bg = svgInstanceRef.current.rect(
+          bbox.width + padding * 2,
+          bbox.height + padding * 2
+        )
+          .move(bbox.x - padding, bbox.y - padding)
+          .fill('#fff')
+          .opacity(0.01)
+          .attr({ id: `rt${i}` })
+          .back();
 
-      group.add(bg);
+        group.add(bg);
+      } catch (error) {
+        console.log(`Skipping group t${i} - not found or error:`, error.message);
+      }
     }
   };
 
@@ -256,17 +260,24 @@ const PuzzlePage = () => {
       // Set an ID for SVG.js to target
       svgElement.id = 'puzzleSvg';
       
-      // Initialize SVG.js
-      svgInstanceRef.current = SVG('#puzzleSvg');
+      // Initialize SVG.js with a small delay to ensure DOM is ready
+      setTimeout(() => {
+        try {
+          svgInstanceRef.current = SVG('#puzzleSvg');
+          
+          // Add debug text
+          debugTextRef.current = svgInstanceRef.current.text('').move(10, 760).font({ size: 16 }).fill('#f00');
+          
+          // Initialize drag functionality
+          addThumbHitboxes();
+          initAllDraggables();
+          
+          console.log('SVG interaction initialized successfully');
+        } catch (initError) {
+          console.error('Error in delayed SVG initialization:', initError);
+        }
+      }, 200);
       
-      // Add debug text
-      debugTextRef.current = svgInstanceRef.current.text('').move(10, 760).font({ size: 16 }).fill('#f00');
-      
-      // Initialize drag functionality
-      addThumbHitboxes();
-      initAllDraggables();
-      
-      console.log('SVG interaction initialized successfully');
     } catch (error) {
       console.error('Error initializing SVG interaction:', error);
     }
