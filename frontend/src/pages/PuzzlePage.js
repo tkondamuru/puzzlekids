@@ -93,7 +93,31 @@ const PuzzlePage = () => {
         // Inject SVG content
         svgContainerRef.current.innerHTML = svgText;
         
-        // Initialize SVG.js after content is loaded
+        // Make SVG responsive by removing fixed width and height
+        const svgElement = svgContainerRef.current.querySelector('svg');
+        if (svgElement) {
+          // Remove fixed dimensions
+          svgElement.removeAttribute('width');
+          svgElement.removeAttribute('height');
+          
+          // Add responsive styling
+          svgElement.style.width = '100%';
+          svgElement.style.height = 'auto';
+          svgElement.style.maxHeight = '80vh';
+          
+          // Preserve aspect ratio if viewBox exists
+          if (!svgElement.getAttribute('viewBox')) {
+            // If no viewBox, try to set one based on original dimensions
+            const originalWidth = svgElement.getAttribute('data-width') || '800';
+            const originalHeight = svgElement.getAttribute('data-height') || '600';
+            svgElement.setAttribute('viewBox', `0 0 ${originalWidth} ${originalHeight}`);
+          }
+          
+          // Ensure it's scalable
+          svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        }
+        
+        // Initialize SVG.js after content is loaded and made responsive
         setTimeout(() => {
           initializeSVGInteraction();
         }, 300);
