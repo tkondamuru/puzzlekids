@@ -91,7 +91,6 @@ const PuzzlePage = () => {
         // Initialize SVG.js after content is loaded
         setTimeout(() => {
           initializeSVGInteraction();
-          setStartTime(Date.now());
         }, 300);
       }
     } catch (error) {
