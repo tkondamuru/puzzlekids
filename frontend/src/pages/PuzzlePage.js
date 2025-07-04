@@ -213,27 +213,36 @@ const PuzzlePage = () => {
   };
 
   const showPuzzleComplete = () => {
-    const puzzleRoot = SVG('#puzzleRoot');
-    if (!puzzleRoot.node) return;
-
-    // Shine animation: pulse scale + opacity
-    puzzleRoot.animate(600, '<>')
-      .scale(0.95)
-      .opacity(0.9)
-      .loop(3, true)
-      .after(() => {
-        puzzleRoot.animate(600).scale(1).opacity(1);
-        const message = celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
-        
-        svgInstanceRef.current.text(message)
-          .move(150, 30)
-          .font({ size: 35, anchor: 'middle', weight: 'bold', family: 'Comic Sans MS, cursive' })
-          .fill('#28a745')
-          .animate(1000).opacity(1);
-        
-        // Complete puzzle in React state
+    try {
+      const puzzleRoot = SVG('#puzzleRoot');
+      if (!puzzleRoot || !puzzleRoot.node) {
+        console.log('puzzleRoot not found, completing puzzle without animation');
         completePuzzle();
-      });
+        return;
+      }
+
+      // Shine animation: pulse scale + opacity
+      puzzleRoot.animate(600, '<>')
+        .scale(0.95)
+        .opacity(0.9)
+        .loop(3, true)
+        .after(() => {
+          puzzleRoot.animate(600).scale(1).opacity(1);
+          const message = celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
+          
+          svgInstanceRef.current.text(message)
+            .move(150, 30)
+            .font({ size: 35, anchor: 'middle', weight: 'bold', family: 'Comic Sans MS, cursive' })
+            .fill('#28a745')
+            .animate(1000).opacity(1);
+          
+          // Complete puzzle in React state
+          completePuzzle();
+        });
+    } catch (error) {
+      console.log('Error in showPuzzleComplete:', error.message);
+      completePuzzle();
+    }
   };
 
   const addThumbHitboxes = () => {
