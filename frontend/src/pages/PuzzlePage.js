@@ -50,9 +50,9 @@ const PuzzlePage = () => {
   }, [puzzle]);
 
   useEffect(() => {
-    if (startTime && gameState === 'playing') {
+    if (startTimeRef.current && gameState === 'playing') {
       const timer = setInterval(() => {
-        setCurrentTime(Math.floor((Date.now() - startTime) / 1000));
+        setCurrentTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
       }, 1000);
       return () => clearInterval(timer);
     }
