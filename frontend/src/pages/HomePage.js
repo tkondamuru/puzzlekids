@@ -3,15 +3,22 @@ import { Link, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
-import { Trophy, Clock, Star, Sparkles, Loader2 } from 'lucide-react';
+import { Input } from '../components/ui/input';
+import { Switch } from '../components/ui/switch';
+import { Trophy, Clock, Star, Sparkles, Loader2, Search, Filter } from 'lucide-react';
 import { fetchPuzzles, getCompletionStats } from '../utils/mockData';
 import { getStoredStats } from '../utils/localStorage';
 
 const HomePage = () => {
-  const [puzzles, setPuzzles] = useState([]);
+  const [allPuzzles, setAllPuzzles] = useState([]);
+  const [filteredPuzzles, setFilteredPuzzles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState(getStoredStats());
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [availableTags, setAvailableTags] = useState([]);
+  const [showFilters, setShowFilters] = useState(false);
   const completionStats = getCompletionStats();
   const location = useLocation();
 
@@ -37,6 +44,11 @@ const HomePage = () => {
     refreshStats();
   }, [location.pathname]);
 
+  useEffect(() => {
+    // Filter puzzles when search term or selected tags change
+    filterPuzzles();
+  }, [searchTerm, selectedTags, allPuzzles]);
+
   const refreshStats = () => {
     const updatedStats = getStoredStats();
     setStats(updatedStats);
@@ -47,13 +59,58 @@ const HomePage = () => {
       setLoading(true);
       setError(null);
       const puzzleData = await fetchPuzzles();
-      setPuzzles(puzzleData);
+      setAllPuzzles(puzzleData);
+      
+      // Extract unique tags
+      const tags = new Set();
+      puzzleData.forEach(puzzle => {
+        if (puzzle.tags && puzzle.tags.length > 0) {
+          puzzle.tags.forEach(tag => tags.add(tag));
+        }
+      });
+      setAvailableTags(Array.from(tags).sort());
+      
     } catch (err) {
       setError('Failed to load puzzles. Please try again.');
       console.error('Error loading puzzles:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const filterPuzzles = () => {
+    let filtered = allPuzzles;
+
+    // Filter by search term (name and description)
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(puzzle => 
+        puzzle.title.toLowerCase().includes(term) ||
+        puzzle.description.toLowerCase().includes(term)
+      );
+    }
+
+    // Filter by selected tags
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter(puzzle => 
+        puzzle.tags && puzzle.tags.some(tag => selectedTags.includes(tag))
+      );
+    }
+
+    setFilteredPuzzles(filtered);
+  };
+
+  const handleTagToggle = (tag) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedTags([]);
   };
 
   if (loading) {
