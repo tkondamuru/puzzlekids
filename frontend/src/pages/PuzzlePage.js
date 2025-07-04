@@ -44,6 +44,7 @@ const PuzzlePage = () => {
 
   useEffect(() => {
     if (puzzle && puzzle.imgUrl) {
+      setStartTime(Date.now()); // Set the start time when puzzle is first loaded
       loadSVGContent();
     }
   }, [puzzle]);
