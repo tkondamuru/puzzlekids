@@ -455,6 +455,19 @@ const PuzzlePage = () => {
             </div>
             
             <Button
+              onClick={() => {
+                console.log('Test completion - StartTime:', startTime, 'Current:', Date.now());
+                if (startTime) {
+                  console.log('Elapsed:', Math.floor((Date.now() - startTime) / 1000), 'seconds');
+                }
+                showPuzzleComplete();
+              }}
+              className="bg-green-500 hover:bg-green-600 text-white border border-white/30"
+            >
+              Test Timer
+            </Button>
+            
+            <Button
               onClick={resetPuzzle}
               className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/30"
             >
