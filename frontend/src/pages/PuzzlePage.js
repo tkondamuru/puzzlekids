@@ -184,17 +184,24 @@ const PuzzlePage = () => {
 
   const initAllDraggables = () => {
     for (let i = 1; i <= 18; i++) {
-      const target = SVG(`#g${i}`);
-      if (!target.node) continue;
-      
-      const bbox = target.bbox();
-      partsRef.current[i] = {
-        target: target,
-        center: { x: bbox.cx, y: bbox.cy }
-      };
-      
-      setupDrag(i);
-      target.hide();
+      try {
+        const target = SVG(`#g${i}`);
+        if (!target || !target.node) {
+          console.log(`Target g${i} not found, skipping`);
+          continue;
+        }
+        
+        const bbox = target.bbox();
+        partsRef.current[i] = {
+          target: target,
+          center: { x: bbox.cx, y: bbox.cy }
+        };
+        
+        setupDrag(i);
+        target.hide();
+      } catch (error) {
+        console.log(`Error setting up draggable ${i}:`, error.message);
+      }
     }
   };
 
