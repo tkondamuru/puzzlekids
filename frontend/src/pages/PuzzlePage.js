@@ -335,10 +335,12 @@ const PuzzlePage = () => {
 
   const completePuzzle = () => {
     const completionTime = formatTime(currentTime);
+    console.log('Completing puzzle with time:', completionTime, 'seconds:', currentTime);
     setGameState('completed');
     
     // Save completion to localStorage
-    savePuzzleCompletion(puzzle.id, completionTime, currentTime);
+    const savedStats = savePuzzleCompletion(puzzle.id, completionTime, currentTime);
+    console.log('Puzzle completion saved:', savedStats);
     
     toast.success(
       `🎉 Puzzle Completed! Time: ${completionTime}`,
