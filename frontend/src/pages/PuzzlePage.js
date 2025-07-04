@@ -327,6 +327,12 @@ const PuzzlePage = () => {
     }
   };
 
+  // Test completion function - remove this in production
+  const testCompletion = () => {
+    console.log('Testing puzzle completion...');
+    showPuzzleComplete();
+  };
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
