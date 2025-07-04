@@ -334,12 +334,17 @@ const PuzzlePage = () => {
   };
 
   const completePuzzle = () => {
-    const completionTime = formatTime(currentTime);
-    console.log('Completing puzzle with time:', completionTime, 'seconds:', currentTime);
+    // Calculate actual elapsed time directly instead of relying on state
+    const actualElapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+    const completionTime = formatTime(actualElapsedSeconds);
+    
+    console.log('Completing puzzle with time:', completionTime, 'seconds:', actualElapsedSeconds);
+    console.log('State currentTime was:', currentTime, 'but actual elapsed is:', actualElapsedSeconds);
+    
     setGameState('completed');
     
-    // Save completion to localStorage
-    const savedStats = savePuzzleCompletion(puzzle.id, completionTime, currentTime);
+    // Save completion to localStorage using actual elapsed time
+    const savedStats = savePuzzleCompletion(puzzle.id, completionTime, actualElapsedSeconds);
     console.log('Puzzle completion saved:', savedStats);
     
     toast.success(
