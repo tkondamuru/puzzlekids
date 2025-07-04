@@ -1,16 +1,65 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
-import { Trophy, Clock, Star, Sparkles } from 'lucide-react';
-import { getPuzzles, getCompletionStats } from '../utils/mockData';
+import { Trophy, Clock, Star, Sparkles, Loader2 } from 'lucide-react';
+import { fetchPuzzles, getCompletionStats } from '../utils/mockData';
 import { getStoredStats } from '../utils/localStorage';
 
 const HomePage = () => {
-  const puzzles = getPuzzles();
-  const stats = getStoredStats();
+  const [puzzles, setPuzzles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [stats, setStats] = useState(getStoredStats());
   const completionStats = getCompletionStats();
+
+  useEffect(() => {
+    loadPuzzles();
+    // Refresh stats when component mounts
+    setStats(getStoredStats());
+  }, []);
+
+  const loadPuzzles = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const puzzleData = await fetchPuzzles();
+      setPuzzles(puzzleData);
+    } catch (err) {
+      setError('Failed to load puzzles. Please try again.');
+      console.error('Error loading puzzles:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400 p-4 flex items-center justify-center">
+        <Card className="p-8 text-center bg-white/95 backdrop-blur-sm">
+          <Loader2 className="mx-auto mb-4 animate-spin text-purple-500" size={48} />
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Loading Puzzles...</h2>
+          <p className="text-gray-600">Getting your amazing puzzles ready!</p>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400 p-4 flex items-center justify-center">
+        <Card className="p-8 text-center bg-white/95 backdrop-blur-sm">
+          <div className="text-6xl mb-4">😞</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Oops!</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Button onClick={loadPuzzles} className="bg-purple-500 hover:bg-purple-600">
+            Try Again
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400 p-4">
@@ -72,8 +121,21 @@ const HomePage = () => {
                   <p className="text-gray-600 text-sm">{puzzle.description}</p>
                 </CardHeader>
                 <CardContent>
-                  <div className="aspect-square bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg mb-4 flex items-center justify-center border-2 border-dashed border-gray-300">
-                    <div className="text-6xl">{puzzle.emoji}</div>
+                  <div className="aspect-square bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg mb-4 flex items-center justify-center border-2 border-dashed border-gray-300 overflow-hidden">
+                    {puzzle.imgUrl ? (
+                      <img 
+                        src={puzzle.imgUrl} 
+                        alt={puzzle.title}
+                        className="w-full h-full object-contain rounded-lg"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className="text-6xl" style={{ display: puzzle.imgUrl ? 'none' : 'flex' }}>
+                      {puzzle.emoji}
+                    </div>
                   </div>
                   
                   <div className="flex items-center justify-between mb-4">
