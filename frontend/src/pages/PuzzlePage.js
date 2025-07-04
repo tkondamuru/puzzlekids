@@ -52,13 +52,16 @@ const PuzzlePage = () => {
   }, [puzzle]);
 
   useEffect(() => {
-    if (startTimeRef.current && gameState === 'playing') {
+    // Start timer when puzzle loads and game is playing
+    if (puzzle && gameState === 'playing') {
       const timer = setInterval(() => {
-        setCurrentTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
+        if (startTimeRef.current) {
+          setCurrentTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
+        }
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [gameState]); // Remove startTimeRef.current from dependencies as refs don't trigger re-renders
+  }, [puzzle, gameState]); // Depend on puzzle and gameState
 
   const loadPuzzle = async () => {
     try {
