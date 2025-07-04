@@ -457,6 +457,20 @@ const PuzzlePage = () => {
             </div>
             
             <Button
+              onClick={() => {
+                console.log('Ref Test - StartTimeRef:', startTimeRef.current);
+                console.log('Current Time:', Date.now());
+                if (startTimeRef.current) {
+                  console.log('Elapsed from ref:', Math.floor((Date.now() - startTimeRef.current) / 1000));
+                }
+                showPuzzleComplete();
+              }}
+              className="bg-green-500 hover:bg-green-600 text-white border border-white/30"
+            >
+              Test Ref
+            </Button>
+            
+            <Button
               onClick={resetPuzzle}
               className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/30"
             >
