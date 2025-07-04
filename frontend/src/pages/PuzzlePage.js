@@ -210,14 +210,14 @@ const PuzzlePage = () => {
         <Card className="mb-6 bg-white/95 backdrop-blur-sm border-2 border-white/50">
           <CardHeader>
             <CardTitle className="text-xl font-bold text-gray-800">
-              Complete Image
+              🧩 Assemble the Car — One Part at a Time!
             </CardTitle>
             <p className="text-gray-600 text-sm">
-              This is what your puzzle will look like when completed!
+              Drag each part into place — if you miss, we'll show you where it belongs!
             </p>
           </CardHeader>
           <CardContent>
-            <div className="aspect-square bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border-2 border-dashed border-gray-300 p-4 max-w-md mx-auto overflow-hidden">
+            <div className="rounded-lg border-2 border-dashed border-gray-300 overflow-hidden">
               {puzzle.imgUrl ? (
                 <img 
                   src={puzzle.imgUrl} 
@@ -238,94 +238,6 @@ const PuzzlePage = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Puzzle Game Area */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Puzzle Board */}
-          <Card className="bg-white/95 backdrop-blur-sm border-2 border-white/50">
-            <CardHeader>
-              <CardTitle className="text-xl font-bold text-gray-800">
-                Puzzle Board
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="aspect-square bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border-2 border-dashed border-gray-300 p-4">
-                <div className="grid grid-cols-3 gap-2 h-full">
-                  {Array.from({ length: puzzle.pieces }).map((_, index) => {
-                    const piece = puzzlePieces.find(p => p.correctPosition === index);
-                    return (
-                      <div
-                        key={index}
-                        className={`
-                          rounded-lg border-2 border-gray-300 flex items-center justify-center
-                          transition-all duration-300 cursor-pointer
-                          ${piece?.isPlaced 
-                            ? 'bg-green-200 border-green-400 transform scale-105' 
-                            : 'bg-white hover:bg-gray-50'
-                          }
-                        `}
-                        onClick={() => piece && handlePieceClick(piece)}
-                      >
-                        {piece?.isPlaced && (
-                          <CheckCircle2 className="text-green-600" size={24} />
-                        )}
-                        {piece && !piece.isPlaced && (
-                          <div 
-                            className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded"
-                            style={{
-                              transform: `rotate(${piece.rotation}deg)`,
-                            }}
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Puzzle Pieces */}
-          <Card className="bg-white/95 backdrop-blur-sm border-2 border-white/50">
-            <CardHeader>
-              <CardTitle className="text-xl font-bold text-gray-800">
-                Puzzle Pieces
-              </CardTitle>
-              <p className="text-gray-600 text-sm">
-                Click pieces to rotate them and place them correctly!
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-4">
-                {puzzlePieces.map((piece) => (
-                  <div
-                    key={piece.id}
-                    className={`
-                      aspect-square rounded-lg border-2 flex items-center justify-center
-                      transition-all duration-300 cursor-pointer
-                      ${piece.isPlaced 
-                        ? 'bg-green-100 border-green-400 opacity-50' 
-                        : 'bg-gradient-to-br from-purple-100 to-pink-100 border-purple-300 hover:border-purple-400 hover:scale-105'
-                      }
-                    `}
-                    onClick={() => handlePieceClick(piece)}
-                  >
-                    {piece.isPlaced ? (
-                      <CheckCircle2 className="text-green-600" size={24} />
-                    ) : (
-                      <div
-                        className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded"
-                        style={{
-                          transform: `rotate(${piece.rotation}deg)`,
-                        }}
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Completion Modal */}
         {gameState === 'completed' && (
