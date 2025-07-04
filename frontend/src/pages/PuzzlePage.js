@@ -18,6 +18,8 @@ const PuzzlePage = () => {
   const [gameState, setGameState] = useState('playing'); // 'playing', 'completed'
   const [startTime, setStartTime] = useState(null);
   const [currentTime, setCurrentTime] = useState(0);
+  const [finalCompletionTime, setFinalCompletionTime] = useState('00:00');
+  const [finalCompletionSeconds, setFinalCompletionSeconds] = useState(0);
   
   // SVG related refs and state
   const svgContainerRef = useRef(null);
