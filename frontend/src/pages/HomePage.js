@@ -19,6 +19,7 @@ const HomePage = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [showSearchSection, setShowSearchSection] = useState(true);
   const completionStats = getCompletionStats();
   const location = useLocation();
 
