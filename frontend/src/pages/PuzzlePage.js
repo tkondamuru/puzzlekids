@@ -24,7 +24,6 @@ const PuzzlePage = () => {
   const svgInstanceRef = useRef(null);
   const partsRef = useRef({});
   const floatThumbRef = useRef({});
-  const debugTextRef = useRef(null);
 
   const celebrationMessages = [
     "🎉 Complete! 🎉", "🌟 Awesome! 🌟", "🎯 Nailed It!", "🏁 You Did It!",
