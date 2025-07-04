@@ -177,9 +177,73 @@ const HomePage = () => {
           </div>
         </div>
 
+        {/* Search and Filter Section */}
+        <div className="mb-8">
+          <Card className="bg-white/95 backdrop-blur-sm border-2 border-white/50">
+            <CardContent className="p-6">
+              {/* Search Bar */}
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search puzzles by name or description..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 text-base"
+                />
+              </div>
+
+              {/* Filter Toggle */}
+              <div className="flex items-center justify-between mb-4">
+                <Button
+                  onClick={() => setShowFilters(!showFilters)}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Filter size={16} />
+                  Filters {selectedTags.length > 0 && `(${selectedTags.length})`}
+                </Button>
+                
+                {(searchTerm || selectedTags.length > 0) && (
+                  <Button onClick={clearFilters} variant="ghost" size="sm">
+                    Clear All
+                  </Button>
+                )}
+              </div>
+
+              {/* Tag Filters */}
+              {showFilters && availableTags.length > 0 && (
+                <div className="border-t pt-4">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Filter by Tags:</h4>
+                  <div className="flex flex-wrap gap-3">
+                    {availableTags.map(tag => (
+                      <div key={tag} className="flex items-center gap-2 bg-gray-50 rounded-lg p-2">
+                        <Switch
+                          checked={selectedTags.includes(tag)}
+                          onCheckedChange={() => handleTagToggle(tag)}
+                          className="data-[state=checked]:bg-purple-600"
+                        />
+                        <label className="text-sm font-medium text-gray-700 capitalize cursor-pointer">
+                          {tag.replace('-', ' ')}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Results Summary */}
+              {(searchTerm || selectedTags.length > 0) && (
+                <div className="mt-4 text-sm text-gray-600">
+                  Showing {filteredPuzzles.length} of {allPuzzles.length} puzzles
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Puzzle Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {puzzles.map((puzzle) => {
+          {filteredPuzzles.map((puzzle) => {
             const isCompleted = stats.completedPuzzles.includes(puzzle.id);
             const completionTime = stats.puzzleTimes[puzzle.id];
             
@@ -233,6 +297,22 @@ const HomePage = () => {
                       </div>
                     )}
                   </div>
+
+                  {/* Tags Display */}
+                  {puzzle.tags && puzzle.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {puzzle.tags.slice(0, 3).map(tag => (
+                        <Badge key={tag} variant="outline" className="text-xs bg-blue-50 text-blue-700">
+                          {tag.replace('-', ' ')}
+                        </Badge>
+                      ))}
+                      {puzzle.tags.length > 3 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{puzzle.tags.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
                   
                   <Link to={`/puzzle/${puzzle.id}`}>
                     <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 rounded-xl transform hover:scale-105 transition-all duration-200">
@@ -244,6 +324,20 @@ const HomePage = () => {
             );
           })}
         </div>
+
+        {/* No Results Message */}
+        {filteredPuzzles.length === 0 && !loading && (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">🔍</div>
+            <h3 className="text-2xl font-bold text-white mb-2">No puzzles found</h3>
+            <p className="text-white/80 mb-4">
+              Try adjusting your search or filter criteria
+            </p>
+            <Button onClick={clearFilters} className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white">
+              Clear Filters
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
