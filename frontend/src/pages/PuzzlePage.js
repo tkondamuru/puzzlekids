@@ -245,6 +245,28 @@ const PuzzlePage = () => {
     }
   };
 
+  const getDynamicGroupCount = () => {
+    if (!svgInstanceRef.current) return 0;
+    
+    try {
+      // Find all groups with IDs starting with 'g' followed by numbers
+      const groups = svgInstanceRef.current.find('[id^="g"]').filter(el => {
+        const id = el.attr('id');
+        return id && /^g\d+$/.test(id); // matches g1, g2, g3, etc.
+      });
+      
+      const groupNumbers = groups.map(el => {
+        const id = el.attr('id');
+        return parseInt(id.replace('g', ''));
+      }).filter(num => !isNaN(num));
+      
+      return groupNumbers.length > 0 ? Math.max(...groupNumbers) : 0;
+    } catch (error) {
+      console.log('Error getting dynamic group count:', error.message);
+      return 0;
+    }
+  };
+
   const addThumbHitboxes = () => {
     for (let i = 1; i <= 18; i++) {
       try {
