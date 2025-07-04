@@ -14,22 +14,28 @@ const normalizeDifficulty = (level) => {
   return 'Easy';
 };
 
-// Get emoji based on puzzle name or description
-const getEmojiForPuzzle = (name, desc) => {
-  const text = (name + ' ' + desc).toLowerCase();
+// Get car emoji based on puzzle index or description
+const getCarEmojiForPuzzle = (index, name, desc) => {
+  const carEmojis = [
+    '🚗', // Regular car
+    '🚕', // Taxi
+    '🚙', // SUV
+    '🚐', // Van
+    '🏎️', // Race car
+    '🚓', // Police car
+    '🚑', // Ambulance
+    '🚒', // Fire truck
+    '🚚', // Truck
+    '🚛', // Articulated lorry
+    '🚜', // Tractor
+    '🏁', // Checkered flag (racing)
+    '🛻', // Pickup truck
+    '🚘', // Oncoming automobile
+    '🚖'  // Oncoming taxi
+  ];
   
-  if (text.includes('garden') || text.includes('flower')) return '🌻';
-  if (text.includes('ocean') || text.includes('sea') || text.includes('fish')) return '🐠';
-  if (text.includes('forest') || text.includes('animal') || text.includes('tree')) return '🦝';
-  if (text.includes('space') || text.includes('star') || text.includes('rocket')) return '🚀';
-  if (text.includes('farm') || text.includes('cow') || text.includes('barn')) return '🐄';
-  if (text.includes('castle') || text.includes('dragon') || text.includes('magic')) return '🏰';
-  if (text.includes('car') || text.includes('vehicle') || text.includes('truck')) return '🚗';
-  if (text.includes('princess') || text.includes('fairy')) return '👸';
-  if (text.includes('pirate') || text.includes('ship')) return '🏴‍☠️';
-  if (text.includes('dinosaur') || text.includes('dino')) return '🦕';
-  
-  return '🧩'; // Default puzzle emoji
+  // Use index to get consistent emoji for each puzzle
+  return carEmojis[index % carEmojis.length];
 };
 
 // Transform API data to our format
