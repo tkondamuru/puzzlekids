@@ -181,7 +181,7 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
               <TrendingUp className="text-green-500" />
-              Recent Completions
+              Latest Completions
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -194,40 +194,57 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {completions.slice(0, 10).map((completion, index) => {
-                  const puzzle = puzzles.find(p => p.id === completion.puzzleId);
-                  return (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="text-2xl">{puzzle?.emoji || '🧩'}</div>
-                        <div>
-                          <h3 className="font-semibold text-gray-800">
-                            {puzzle?.title || 'Unknown Puzzle'}
-                          </h3>
-                          <p className="text-sm text-gray-600">
-                            {new Date(completion.timestamp).toLocaleDateString()}
-                          </p>
+                {(() => {
+                  // Get latest completion for each unique puzzle
+                  const latestCompletions = new Map();
+                  
+                  // Process completions to get the latest one for each puzzle
+                  completions.forEach(completion => {
+                    const existing = latestCompletions.get(completion.puzzleId);
+                    if (!existing || completion.timestamp > existing.timestamp) {
+                      latestCompletions.set(completion.puzzleId, completion);
+                    }
+                  });
+                  
+                  // Convert to array and sort by timestamp (newest first)
+                  const uniqueLatestCompletions = Array.from(latestCompletions.values())
+                    .sort((a, b) => b.timestamp - a.timestamp);
+                  
+                  return uniqueLatestCompletions.map((completion, index) => {
+                    const puzzle = puzzles.find(p => p.id === completion.puzzleId);
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="text-2xl">{puzzle?.emoji || '🧩'}</div>
+                          <div>
+                            <h3 className="font-semibold text-gray-800">
+                              {puzzle?.title || 'Unknown Puzzle'}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              Last played: {new Date(completion.timestamp).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <Badge className="bg-green-500 text-white">
+                            {completion.completionTime}
+                          </Badge>
+                          <Button
+                            onClick={() => navigate(`/puzzle/${completion.puzzleId}`)}
+                            size="sm"
+                            className="bg-purple-500 hover:bg-purple-600 text-white"
+                          >
+                            <Play size={12} className="mr-1" />
+                            Play Again
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <Badge className="bg-green-500 text-white">
-                          {completion.completionTime}
-                        </Badge>
-                        <Button
-                          onClick={() => navigate(`/puzzle/${completion.puzzleId}`)}
-                          size="sm"
-                          className="bg-purple-500 hover:bg-purple-600 text-white"
-                        >
-                          <Play size={12} className="mr-1" />
-                          Play Again
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
             )}
           </CardContent>
