@@ -516,7 +516,7 @@ const PuzzlePage = () => {
                   Puzzle Completed!
                 </CardTitle>
                 <p className="text-gray-600">
-                  Amazing work! You solved the puzzle in {formatTime(currentTime)}.
+                  Amazing work! You solved the puzzle in {finalCompletionTime}.
                 </p>
               </CardHeader>
               <CardContent className="text-center space-y-4">
