@@ -537,7 +537,7 @@ const PuzzlePage = () => {
             )}
             <div 
               ref={svgContainerRef}
-              className="rounded-lg border-2 border-dashed border-gray-300 overflow-hidden min-h-96"
+              className="svg-container rounded-lg border-2 border-dashed border-gray-300 overflow-hidden"
               style={{ display: svgLoading ? 'none' : 'block' }}
             />
           </CardContent>
