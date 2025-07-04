@@ -180,65 +180,138 @@ const HomePage = () => {
 
         {/* Search and Filter Section */}
         <div className="mb-8">
-          <Card className="bg-white/95 backdrop-blur-sm border-2 border-white/50">
-            <CardContent className="p-6">
-              {/* Search Bar */}
-              <div className="relative mb-4">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search puzzles by name or description..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 text-base"
-                />
-              </div>
-
-              {/* Filter Toggle */}
-              <div className="flex items-center justify-between mb-4">
-                <Button
-                  onClick={() => setShowFilters(!showFilters)}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  <Filter size={16} />
-                  Filters {selectedTags.length > 0 && `(${selectedTags.length})`}
-                </Button>
-                
-                {(searchTerm || selectedTags.length > 0) && (
-                  <Button onClick={clearFilters} variant="ghost" size="sm">
-                    Clear All
-                  </Button>
-                )}
-              </div>
-
-              {/* Tag Filters */}
-              {showFilters && availableTags.length > 0 && (
-                <div className="border-t pt-4">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Filter by Tags:</h4>
-                  <div className="flex flex-wrap gap-3">
-                    {availableTags.map(tag => (
-                      <div key={tag} className="flex items-center gap-2 bg-gray-50 rounded-lg p-2">
-                        <Switch
-                          checked={selectedTags.includes(tag)}
-                          onCheckedChange={() => handleTagToggle(tag)}
-                          className="data-[state=checked]:bg-purple-600"
-                        />
-                        <label className="text-sm font-medium text-gray-700 capitalize cursor-pointer">
-                          {tag.replace('-', ' ')}
-                        </label>
-                      </div>
-                    ))}
+          <Card className="bg-white/95 backdrop-blur-sm border-2 border-white/50 overflow-hidden">
+            {/* Section Header */}
+            <div 
+              className="p-4 cursor-pointer select-none hover:bg-gray-50/50 transition-colors duration-200"
+              onClick={() => setShowSearchSection(!showSearchSection)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Search size={20} className="text-purple-600" />
+                  <h3 className="text-lg font-semibold text-gray-800">Search & Filter Puzzles</h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  {(searchTerm || selectedTags.length > 0) && (
+                    <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                      {searchTerm ? 'Search active' : ''} 
+                      {searchTerm && selectedTags.length > 0 ? ' • ' : ''}
+                      {selectedTags.length > 0 ? `${selectedTags.length} filters` : ''}
+                    </Badge>
+                  )}
+                  <div className={`transform transition-transform duration-300 ${showSearchSection ? 'rotate-180' : ''}`}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M7 14L12 9L17 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </div>
                 </div>
-              )}
+              </div>
+            </div>
 
-              {/* Results Summary */}
-              {(searchTerm || selectedTags.length > 0) && (
-                <div className="mt-4 text-sm text-gray-600">
-                  Showing {filteredPuzzles.length} of {allPuzzles.length} puzzles
+            {/* Collapsible Content */}
+            <div className={`transition-all duration-500 ease-in-out ${
+              showSearchSection 
+                ? 'max-h-96 opacity-100' 
+                : 'max-h-0 opacity-0'
+            } overflow-hidden`}>
+              <CardContent className="pt-0 pb-6">
+                {/* Search Bar */}
+                <div className="relative mb-4">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search puzzles by name or description..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 text-base transition-all duration-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  />
                 </div>
-              )}
-            </CardContent>
+
+                {/* Filter Toggle */}
+                <div className="flex items-center justify-between mb-4">
+                  <Button
+                    onClick={() => setShowFilters(!showFilters)}
+                    variant="outline"
+                    className="flex items-center gap-2 transition-all duration-200 hover:bg-purple-50 hover:border-purple-300"
+                  >
+                    <Filter size={16} />
+                    <span>Tag Filters</span>
+                    {selectedTags.length > 0 && (
+                      <Badge className="bg-purple-600 text-white ml-1">
+                        {selectedTags.length}
+                      </Badge>
+                    )}
+                    <div className={`transform transition-transform duration-200 ${showFilters ? 'rotate-180' : ''}`}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <path d="M7 14L12 9L17 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                  </Button>
+                  
+                  {(searchTerm || selectedTags.length > 0) && (
+                    <Button 
+                      onClick={clearFilters} 
+                      variant="ghost" 
+                      size="sm"
+                      className="transition-all duration-200 hover:bg-red-50 hover:text-red-600"
+                    >
+                      Clear All
+                    </Button>
+                  )}
+                </div>
+
+                {/* Tag Filters */}
+                <div className={`transition-all duration-300 ease-in-out ${
+                  showFilters && availableTags.length > 0
+                    ? 'max-h-40 opacity-100 mb-4' 
+                    : 'max-h-0 opacity-0 mb-0'
+                } overflow-hidden`}>
+                  <div className="border-t pt-4">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Filter by Tags:</h4>
+                    <div className="flex flex-wrap gap-3">
+                      {availableTags.map(tag => (
+                        <div 
+                          key={tag} 
+                          className={`flex items-center gap-2 rounded-lg p-3 transition-all duration-200 cursor-pointer hover:scale-105 ${
+                            selectedTags.includes(tag) 
+                              ? 'bg-purple-100 border-2 border-purple-300 shadow-sm' 
+                              : 'bg-gray-50 border-2 border-gray-200 hover:bg-gray-100'
+                          }`}
+                          onClick={() => handleTagToggle(tag)}
+                        >
+                          <Switch
+                            checked={selectedTags.includes(tag)}
+                            onCheckedChange={() => handleTagToggle(tag)}
+                            className="data-[state=checked]:bg-purple-600"
+                          />
+                          <label className="text-sm font-medium text-gray-700 capitalize cursor-pointer">
+                            {tag.replace('-', ' ')}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Results Summary */}
+                {(searchTerm || selectedTags.length > 0) && (
+                  <div className="text-sm text-gray-600 bg-blue-50 rounded-lg p-3 border border-blue-200">
+                    <span className="font-medium">
+                      Showing {filteredPuzzles.length} of {allPuzzles.length} puzzles
+                    </span>
+                    {searchTerm && (
+                      <span className="ml-2 text-blue-600">
+                        • Searching for "{searchTerm}"
+                      </span>
+                    )}
+                    {selectedTags.length > 0 && (
+                      <span className="ml-2 text-purple-600">
+                        • Tags: {selectedTags.join(', ')}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </div>
           </Card>
         </div>
 
