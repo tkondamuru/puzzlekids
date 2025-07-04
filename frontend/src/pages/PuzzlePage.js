@@ -158,9 +158,7 @@ const PuzzlePage = () => {
             floating.cy() - partsRef.current[dragId].center.y
           );
 
-          if (debugTextRef.current) {
-            debugTextRef.current.text(`target: ${floating.cx()}, ${floating.cy()}`);
-          }
+          // Removed debug text display
 
           if (dist < 50) {
             target.show();
