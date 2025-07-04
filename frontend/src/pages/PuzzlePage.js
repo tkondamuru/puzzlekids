@@ -58,7 +58,7 @@ const PuzzlePage = () => {
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [startTimeRef.current, gameState]);
+  }, [gameState]); // Remove startTimeRef.current from dependencies as refs don't trigger re-renders
 
   const loadPuzzle = async () => {
     try {
