@@ -46,7 +46,7 @@ const transformPuzzleData = (apiData) => {
     description: puzzle.desc || 'A fun puzzle to solve',
     difficulty: normalizeDifficulty(puzzle.level),
     pieces: puzzle.pieces || 9,
-    emoji: getEmojiForPuzzle(puzzle.name, puzzle.desc),
+    emoji: getCarEmojiForPuzzle(index, puzzle.name, puzzle.desc),
     svgPath: puzzle.img || '',
     imgUrl: puzzle.img || ''
   }));
