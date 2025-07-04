@@ -449,16 +449,6 @@ const PuzzlePage = () => {
             </div>
             
             <Button
-              onClick={() => {
-                console.log('Manual completion triggered at timer:', formatTime(currentTime));
-                showPuzzleComplete();
-              }}
-              className="bg-green-500 hover:bg-green-600 text-white border border-white/30"
-            >
-              Complete Test
-            </Button>
-            
-            <Button
               onClick={resetPuzzle}
               className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/30"
             >
