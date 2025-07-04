@@ -315,10 +315,7 @@ const PuzzlePage = () => {
         try {
           svgInstanceRef.current = SVG('#puzzleSvg');
           
-          // Add debug text
-          debugTextRef.current = svgInstanceRef.current.text('').move(10, 760).font({ size: 16 }).fill('#f00');
-          
-          // Initialize drag functionality
+          // Initialize drag functionality (removed debugText)
           addThumbHitboxes();
           initAllDraggables();
           
