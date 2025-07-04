@@ -48,7 +48,8 @@ const transformPuzzleData = (apiData) => {
     pieces: puzzle.pieces || 9,
     emoji: getCarEmojiForPuzzle(index, puzzle.name, puzzle.desc),
     svgPath: puzzle.img || '',
-    imgUrl: puzzle.img || ''
+    imgUrl: puzzle.img || '',
+    tags: puzzle.tags ? puzzle.tags.split(',').map(tag => tag.trim()) : []
   }));
 };
 
