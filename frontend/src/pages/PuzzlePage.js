@@ -268,7 +268,10 @@ const PuzzlePage = () => {
   };
 
   const addThumbHitboxes = () => {
-    for (let i = 1; i <= 18; i++) {
+    const maxGroupCount = getDynamicGroupCount();
+    console.log(`Found ${maxGroupCount} puzzle groups`);
+    
+    for (let i = 1; i <= maxGroupCount; i++) {
       try {
         const group = SVG(`#t${i}`);
         if (!group || !group.node) continue;
