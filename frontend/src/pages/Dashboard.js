@@ -1,16 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { ArrowLeft, Trophy, Clock, Target, Zap, Star, TrendingUp } from 'lucide-react';
 import { getStoredStats, getAllCompletions } from '../utils/localStorage';
-import { getPuzzles } from '../utils/mockData';
+import { fetchPuzzles } from '../utils/mockData';
 
 const Dashboard = () => {
-  const stats = getStoredStats();
-  const completions = getAllCompletions();
-  const puzzles = getPuzzles();
+  const [stats, setStats] = useState(getStoredStats());
+  const [completions, setCompletions] = useState(getAllCompletions());
+  const [puzzles, setPuzzles] = useState([]);
+
+  useEffect(() => {
+    loadPuzzles();
+    // Refresh stats when component mounts
+    setStats(getStoredStats());
+    setCompletions(getAllCompletions());
+  }, []);
+
+  const loadPuzzles = async () => {
+    try {
+      const puzzleData = await fetchPuzzles();
+      setPuzzles(puzzleData);
+    } catch (error) {
+      console.error('Error loading puzzles:', error);
+    }
+  };
 
   const getAchievements = () => {
     const achievements = [];
