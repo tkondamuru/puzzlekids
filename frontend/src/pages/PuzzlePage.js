@@ -369,7 +369,7 @@ const PuzzlePage = () => {
 
   const resetPuzzle = () => {
     setGameState('playing');
-    setStartTime(Date.now());
+    startTimeRef.current = Date.now();
     setCurrentTime(0);
     setFinalCompletionTime('00:00');
     setFinalCompletionSeconds(0);
