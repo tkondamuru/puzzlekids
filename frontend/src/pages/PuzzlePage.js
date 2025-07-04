@@ -115,71 +115,78 @@ const PuzzlePage = () => {
   };
 
   const setupDrag = (dragId) => {
-    const thumb = SVG(`#rt${dragId}`);
-    const target = SVG(`#g${dragId}`);
-    
-    if (!thumb.node || !target.node) return;
-    
-    const trayPos = thumb.cx();
-    const trayY = thumb.cy();
-    let floating = null;
-
-    thumb.on('mousedown touchstart', (e) => {
-      e.preventDefault();
+    try {
+      const thumb = SVG(`#rt${dragId}`);
+      const target = SVG(`#g${dragId}`);
       
-      if (floatThumbRef.current['last'] != null) {
-        floatThumbRef.current['last'].remove();
-        floatThumbRef.current['last'] = null;
+      if (!thumb || !thumb.node || !target || !target.node) {
+        console.log(`Drag elements for ${dragId} not found, skipping setup`);
+        return;
       }
       
-      const { x: startX, y: startY } = getSVGCoordsFromEvent(e);
-      floating = target.clone().addTo(svgInstanceRef.current).opacity(0.4).front();
-      floating.center(startX, startY);
-      floating.show();
-      floatThumbRef.current['last'] = floating;
+      const trayPos = thumb.cx();
+      const trayY = thumb.cy();
+      let floating = null;
 
-      function moveHandler(ev) {
-        const { x, y } = getSVGCoordsFromEvent(ev);
-        floating.center(x, y);
-      }
+      thumb.on('mousedown touchstart', (e) => {
+        e.preventDefault();
+        
+        if (floatThumbRef.current['last'] != null) {
+          floatThumbRef.current['last'].remove();
+          floatThumbRef.current['last'] = null;
+        }
+        
+        const { x: startX, y: startY } = getSVGCoordsFromEvent(e);
+        floating = target.clone().addTo(svgInstanceRef.current).opacity(0.4).front();
+        floating.center(startX, startY);
+        floating.show();
+        floatThumbRef.current['last'] = floating;
 
-      function upHandler(ev) {
-        document.removeEventListener("mousemove", moveHandler);
-        document.removeEventListener("mouseup", upHandler);
-        document.removeEventListener('touchmove', moveHandler);
-        document.removeEventListener('touchend', upHandler);
-
-        const dist = Math.hypot(
-          floating.cx() - partsRef.current[dragId].center.x,
-          floating.cy() - partsRef.current[dragId].center.y
-        );
-
-        if (debugTextRef.current) {
-          debugTextRef.current.text(`target: ${floating.cx()}, ${floating.cy()}`);
+        function moveHandler(ev) {
+          const { x, y } = getSVGCoordsFromEvent(ev);
+          floating.center(x, y);
         }
 
-        if (dist < 50) {
-          target.show();
-          floating.remove();
-          thumb.parent().hide();
-          
-          // Check if all thumbs are hidden
-          const remaining = svgInstanceRef.current.find('[id^=rt]').filter(el => el.parent().visible());
-          if (remaining.length === 0) {
-            showPuzzleComplete();
+        function upHandler(ev) {
+          document.removeEventListener("mousemove", moveHandler);
+          document.removeEventListener("mouseup", upHandler);
+          document.removeEventListener('touchmove', moveHandler);
+          document.removeEventListener('touchend', upHandler);
+
+          const dist = Math.hypot(
+            floating.cx() - partsRef.current[dragId].center.x,
+            floating.cy() - partsRef.current[dragId].center.y
+          );
+
+          if (debugTextRef.current) {
+            debugTextRef.current.text(`target: ${floating.cx()}, ${floating.cy()}`);
           }
-        } else {
-          floating.animate(300).center(trayPos, trayY).after(() => {
-            floating.remove();
-          });
-        }
-      }
 
-      document.addEventListener("mousemove", moveHandler);
-      document.addEventListener("mouseup", upHandler);
-      document.addEventListener("touchmove", moveHandler);
-      document.addEventListener("touchend", upHandler);
-    });
+          if (dist < 50) {
+            target.show();
+            floating.remove();
+            thumb.parent().hide();
+            
+            // Check if all thumbs are hidden
+            const remaining = svgInstanceRef.current.find('[id^=rt]').filter(el => el.parent().visible());
+            if (remaining.length === 0) {
+              showPuzzleComplete();
+            }
+          } else {
+            floating.animate(300).center(trayPos, trayY).after(() => {
+              floating.remove();
+            });
+          }
+        }
+
+        document.addEventListener("mousemove", moveHandler);
+        document.addEventListener("mouseup", upHandler);
+        document.addEventListener("touchmove", moveHandler);
+        document.addEventListener("touchend", upHandler);
+      });
+    } catch (error) {
+      console.log(`Error setting up drag for ${dragId}:`, error.message);
+    }
   };
 
   const initAllDraggables = () => {
