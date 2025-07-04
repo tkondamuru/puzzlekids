@@ -220,9 +220,9 @@ const PuzzlePage = () => {
 
   const showPuzzleComplete = () => {
     try {
-      const puzzleRoot = SVG('#puzzleRoot');
+      const puzzleRoot = SVG('#puzzleSvg'); // Fixed: use puzzleSvg instead of puzzleRoot
       if (!puzzleRoot || !puzzleRoot.node) {
-        console.log('puzzleRoot not found, completing puzzle without animation');
+        console.log('puzzleSvg not found, completing puzzle without animation');
         completePuzzle();
         return;
       }
