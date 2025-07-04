@@ -190,7 +190,9 @@ const PuzzlePage = () => {
   };
 
   const initAllDraggables = () => {
-    for (let i = 1; i <= 18; i++) {
+    const maxGroupCount = getDynamicGroupCount();
+    
+    for (let i = 1; i <= maxGroupCount; i++) {
       try {
         const target = SVG(`#g${i}`);
         if (!target || !target.node) {
