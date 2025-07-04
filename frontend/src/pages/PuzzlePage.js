@@ -368,19 +368,28 @@ const PuzzlePage = () => {
         floatThumbRef.current['last'] = null;
       }
       
-      // Reset all parts to hidden and thumbs to visible
-      for (let i = 1; i <= 18; i++) {
-        const target = SVG(`#g${i}`);
-        const thumb = SVG(`#rt${i}`);
-        if (target.node) target.hide();
-        if (thumb.node) thumb.parent().show();
+      // Get dynamic group count and reset all parts
+      const maxGroupCount = getDynamicGroupCount();
+      for (let i = 1; i <= maxGroupCount; i++) {
+        try {
+          const target = SVG(`#g${i}`);
+          const thumb = SVG(`#rt${i}`);
+          if (target && target.node) target.hide();
+          if (thumb && thumb.node) thumb.parent().show();
+        } catch (error) {
+          console.log(`Error resetting piece ${i}:`, error.message);
+        }
       }
       
       // Clear any celebration text
-      const textElements = svgInstanceRef.current.find('text').filter(el => 
-        el.text() && celebrationMessages.includes(el.text())
-      );
-      textElements.forEach(el => el.remove());
+      try {
+        const textElements = svgInstanceRef.current.find('text').filter(el => 
+          el.text && el.text() && celebrationMessages.includes(el.text())
+        );
+        textElements.forEach(el => el.remove());
+      } catch (error) {
+        console.log('Error clearing celebration text:', error.message);
+      }
     }
   };
 
