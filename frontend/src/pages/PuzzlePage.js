@@ -90,7 +90,7 @@ const PuzzlePage = () => {
         setTimeout(() => {
           initializeSVGInteraction();
           setStartTime(Date.now());
-        }, 100);
+        }, 300);
       }
     } catch (error) {
       console.error('Error loading SVG:', error);
