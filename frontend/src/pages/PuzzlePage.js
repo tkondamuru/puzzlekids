@@ -20,6 +20,7 @@ const PuzzlePage = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [finalCompletionTime, setFinalCompletionTime] = useState('00:00');
   const [finalCompletionSeconds, setFinalCompletionSeconds] = useState(0);
+  const [recommendedPuzzles, setRecommendedPuzzles] = useState([]);
   
   // SVG related refs and state
   const svgContainerRef = useRef(null);
