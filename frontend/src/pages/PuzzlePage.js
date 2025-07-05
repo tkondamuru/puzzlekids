@@ -41,6 +41,7 @@ const PuzzlePage = () => {
 
   useEffect(() => {
     loadPuzzle();
+    loadRecommendedPuzzles();
   }, [id]);
 
   useEffect(() => {
