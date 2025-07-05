@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { ArrowLeft, RotateCcw, Clock, Trophy, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { getPuzzleById } from '../utils/mockData';
+import { getPuzzleById, fetchPuzzles } from '../utils/mockData';
 import { savePuzzleCompletion, getStoredStats } from '../utils/localStorage';
 import { SVG } from '@svgdotjs/svg.js';
 
