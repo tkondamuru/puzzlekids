@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/puzzlekids/frontend/static/css/main.2effb142.css",
+    "main.js": "/puzzlekids/frontend/static/js/main.272c9dc3.js",
+    "index.html": "/puzzlekids/frontend/index.html",
+    "main.2effb142.css.map": "/puzzlekids/frontend/static/css/main.2effb142.css.map",
+    "main.272c9dc3.js.map": "/puzzlekids/frontend/static/js/main.272c9dc3.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2effb142.css",
+    "static/js/main.272c9dc3.js"
+  ]
+}
