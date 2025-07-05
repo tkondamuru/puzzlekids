@@ -583,6 +583,109 @@ const PuzzlePage = () => {
           </CardContent>
         </Card>
 
+        {/* Recommended Puzzles Section */}
+        {recommendedPuzzles.length > 0 && (
+          <Card className="mb-6 bg-white/95 backdrop-blur-sm border-2 border-white/50">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <Sparkles className="text-purple-500" />
+                Try These Puzzles Next!
+              </CardTitle>
+              <p className="text-gray-600 text-sm">
+                More fun puzzles waiting for you to solve
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {recommendedPuzzles.map((recommendedPuzzle) => {
+                  const stats = getStoredStats();
+                  const isCompleted = stats.completedPuzzles.includes(recommendedPuzzle.id);
+                  const completionTime = stats.puzzleTimes[recommendedPuzzle.id];
+                  
+                  return (
+                    <Card key={recommendedPuzzle.id} className="overflow-hidden transform hover:scale-105 hover:shadow-lg transition-all duration-300 bg-white border border-gray-200">
+                      <CardHeader className="relative p-3">
+                        <div className="absolute top-1 right-1">
+                          {isCompleted && (
+                            <Badge className="bg-green-500 text-white text-xs">
+                              <Trophy size={8} className="mr-1" />
+                              Solved!
+                            </Badge>
+                          )}
+                        </div>
+                        <CardTitle className="text-sm font-bold text-gray-800 mb-1 leading-tight">
+                          {recommendedPuzzle.title}
+                        </CardTitle>
+                        <p className="text-gray-600 text-xs line-clamp-2">{recommendedPuzzle.description}</p>
+                      </CardHeader>
+                      <CardContent className="p-3 pt-0">
+                        <div className="aspect-square bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg mb-3 flex items-center justify-center border border-gray-200 overflow-hidden">
+                          {recommendedPuzzle.imgUrl ? (
+                            <img 
+                              src={recommendedPuzzle.imgUrl} 
+                              alt={recommendedPuzzle.title}
+                              className="w-full h-full object-contain rounded-lg"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div className="text-3xl" style={{ display: recommendedPuzzle.imgUrl ? 'none' : 'flex' }}>
+                            {recommendedPuzzle.emoji}
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-1">
+                            <Badge variant="secondary" className="text-xs px-1 py-0">
+                              {recommendedPuzzle.difficulty}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs px-1 py-0">
+                              {recommendedPuzzle.pieces}pc
+                            </Badge>
+                          </div>
+                          {completionTime && (
+                            <div className="flex items-center gap-1 text-xs text-gray-600">
+                              <Clock size={8} />
+                              {completionTime}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Tags Display */}
+                        {recommendedPuzzle.tags && recommendedPuzzle.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            {recommendedPuzzle.tags.slice(0, 2).map(tag => (
+                              <Badge key={tag} variant="outline" className="text-xs bg-blue-50 text-blue-700 px-1 py-0">
+                                {tag.replace('-', ' ')}
+                              </Badge>
+                            ))}
+                            {recommendedPuzzle.tags.length > 2 && (
+                              <Badge variant="outline" className="text-xs px-1 py-0">
+                                +{recommendedPuzzle.tags.length - 2}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                        
+                        <Link to={`/puzzle/${recommendedPuzzle.id}`}>
+                          <Button 
+                            size="sm" 
+                            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-2 rounded-lg text-xs transform hover:scale-105 transition-all duration-200"
+                          >
+                            {isCompleted ? 'Play Again' : 'Try This!'}
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Completion Modal */}
         {gameState === 'completed' && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
