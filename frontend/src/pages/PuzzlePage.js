@@ -78,6 +78,44 @@ const PuzzlePage = () => {
     }
   };
 
+  const loadRecommendedPuzzles = async () => {
+    try {
+      const allPuzzles = await fetchPuzzles();
+      const stats = getStoredStats();
+      
+      // Filter out current puzzle
+      const otherPuzzles = allPuzzles.filter(p => p.id !== id);
+      
+      // Separate completed and incomplete puzzles
+      const incompletePuzzles = otherPuzzles.filter(p => !stats.completedPuzzles.includes(p.id));
+      const completedPuzzles = otherPuzzles.filter(p => stats.completedPuzzles.includes(p.id));
+      
+      // Shuffle function
+      const shuffle = (array) => {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+      };
+      
+      // Get random recommendations (prioritize incomplete puzzles)
+      const shuffledIncomplete = shuffle(incompletePuzzles);
+      const shuffledCompleted = shuffle(completedPuzzles);
+      
+      // Take up to 4 puzzles, prioritizing incomplete ones
+      const recommended = [
+        ...shuffledIncomplete.slice(0, 4),
+        ...shuffledCompleted.slice(0, Math.max(0, 4 - shuffledIncomplete.length))
+      ].slice(0, 4);
+      
+      setRecommendedPuzzles(recommended);
+    } catch (error) {
+      console.error('Error loading recommended puzzles:', error);
+    }
+  };
+
   const loadSVGContent = async () => {
     try {
       setSvgLoading(true);
