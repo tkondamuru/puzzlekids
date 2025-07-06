@@ -52,8 +52,8 @@ const AdminPage = () => {
     try {
       setLoading(true);
       const baseUrl = sasUrl.split('?')[0]; // Remove SAS token
-      const containerUrl = baseUrl.substring(0, baseUrl.lastIndexOf('/'));
-      const carsJsonUrl = `${containerUrl}/cars.js?${sasUrl.split('?')[1]}`;
+      //const containerUrl = baseUrl.substring(0, baseUrl.lastIndexOf('/'));
+      const carsJsonUrl = `${baseUrl}/cars.js?${sasUrl.split('?')[1]}`;
 
       const response = await fetch(carsJsonUrl);
       if (!response.ok) {
