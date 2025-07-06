@@ -10,7 +10,7 @@ import './App.css';
 function App() {
   return (
     <div className="App">
-      <Router basename="/puzzlekids">
+      <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/puzzle/:id" element={<PuzzlePage />} />
