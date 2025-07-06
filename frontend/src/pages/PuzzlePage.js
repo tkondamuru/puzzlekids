@@ -21,8 +21,7 @@ const PuzzlePage = () => {
   const [finalCompletionTime, setFinalCompletionTime] = useState('00:00');
   const [finalCompletionSeconds, setFinalCompletionSeconds] = useState(0);
   const [recommendedPuzzles, setRecommendedPuzzles] = useState([]);
-  const [zoomLevel, setZoomLevel] = useState(1); // State to track zoom level
-
+  
   // SVG related refs and state
   const svgContainerRef = useRef(null);
   const svgInstanceRef = useRef(null);
@@ -79,14 +78,6 @@ const PuzzlePage = () => {
     }
   };
 
-  const handleZoomChange = (event) => {
-    const newZoomLevel = parseFloat(event.target.value);
-    setZoomLevel(newZoomLevel);
-  
-    if (svgInstanceRef.current) {
-      svgInstanceRef.current.transform({ scale: newZoomLevel });
-    }
-  };
   
   const loadRecommendedPuzzles = async () => {
     try {
@@ -590,22 +581,6 @@ const PuzzlePage = () => {
               className="svg-container rounded-lg border-2 border-dashed border-gray-300 overflow-hidden"
               style={{ display: svgLoading ? 'none' : 'block' }}
             />
-            {/* Zoom Slider */}
-            <div className="mt-4 flex items-center gap-2">
-              <label htmlFor="zoom-slider" className="text-sm text-gray-600">
-                Zoom:
-              </label>
-              <input
-                id="zoom-slider"
-                type="range"
-                min="0.5"
-                max="2"
-                step="0.1"
-                value={zoomLevel}
-                onChange={handleZoomChange}
-                className="w-full"
-              />
-            </div>
           </CardContent>
         </Card>
 
