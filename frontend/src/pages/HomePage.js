@@ -6,7 +6,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Switch } from '../components/ui/switch';
 import { Trophy, Clock, Star, Sparkles, Loader2, Search, Filter, Settings } from 'lucide-react';
-import { fetchPuzzles, getCompletionStats } from '../utils/mockData';
+import { fetchPuzzles, getCompletionStats, clearPuzzleCache } from '../utils/mockData';
 import { getStoredStats } from '../utils/localStorage';
 
 const HomePage = () => {
@@ -59,7 +59,10 @@ const HomePage = () => {
     try {
       setLoading(true);
       setError(null);
-      const puzzleData = await fetchPuzzles();
+      
+      // Clear cache and force fresh data from server
+      clearPuzzleCache();
+      const puzzleData = await fetchPuzzles(true);
       setAllPuzzles(puzzleData);
       
       // Extract unique tags

@@ -4,6 +4,11 @@ const PUZZLE_API_URL = 'https://azuprddatasave.blob.core.windows.net/minigames/c
 // Cache for puzzle data
 let puzzleCache = null;
 
+// Function to clear the cache
+export const clearPuzzleCache = () => {
+  puzzleCache = null;
+};
+
 // Map difficulty levels to consistent format
 const normalizeDifficulty = (level) => {
   if (!level) return 'Easy';
@@ -54,13 +59,26 @@ const transformPuzzleData = (apiData) => {
 };
 
 // Fetch puzzles from API
-export const fetchPuzzles = async () => {
-  if (puzzleCache) {
+export const fetchPuzzles = async (forceRefresh = false) => {
+  // Only use cache if not forcing refresh
+  if (puzzleCache && !forceRefresh) {
     return puzzleCache;
   }
 
   try {
-    const response = await fetch(PUZZLE_API_URL);
+    // Add cache-busting timestamp and no-cache headers
+    const timestamp = Date.now();
+    const url = `${PUZZLE_API_URL}?t=${timestamp}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
+    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
