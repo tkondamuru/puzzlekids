@@ -156,28 +156,28 @@ const HomePage = () => {
 
         {/* Stats Bar */}
         <div className="flex justify-center mb-8">
-          <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 flex gap-8 items-center border border-white/30">
+          <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 md:p-6 flex flex-wrap gap-4 md:gap-8 items-center justify-center border border-white/30 max-w-full">
             <div className="flex items-center gap-2">
-              <Trophy className="text-yellow-300" size={24} />
-              <span className="text-white font-semibold">
-                {stats.totalCompleted} Puzzles Solved
+              <Trophy className="text-yellow-300" size={20} />
+              <span className="text-white font-semibold text-sm md:text-base">
+                {stats.totalCompleted} Solved
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <Star className="text-yellow-300" size={24} />
-              <span className="text-white font-semibold">
-                Best Time: {stats.bestTime || 'N/A'}
+              <Star className="text-yellow-300" size={20} />
+              <span className="text-white font-semibold text-sm md:text-base">
+                Best: {stats.bestTime || 'N/A'}
               </span>
             </div>
             <Link to="/dashboard">
-              <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 py-2 rounded-xl transform hover:scale-105 transition-all duration-200">
-                <Sparkles className="mr-2" size={16} />
-                View Dashboard
+              <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-4 md:px-6 py-2 rounded-xl transform hover:scale-105 transition-all duration-200 text-sm md:text-base">
+                <Sparkles className="mr-1 md:mr-2" size={14} />
+                Dashboard
               </Button>
             </Link>
             <Link to="/admin">
-              <Button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/30 font-bold px-6 py-2 rounded-xl transform hover:scale-105 transition-all duration-200">
-                <Settings className="mr-2" size={16} />
+              <Button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/30 font-bold px-4 md:px-6 py-2 rounded-xl transform hover:scale-105 transition-all duration-200 text-sm md:text-base">
+                <Settings className="mr-1 md:mr-2" size={14} />
                 Admin
               </Button>
             </Link>
