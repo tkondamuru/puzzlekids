@@ -20,6 +20,25 @@ const AdminPage = () => {
   const [allTags, setAllTags] = useState([]);
   const [imageUploading, setImageUploading] = useState(false);
 
+  // Load SAS URL from localStorage on component mount
+  useEffect(() => {
+    const storedSasUrl = localStorage.getItem('puzzlekids_sas_url');
+    if (storedSasUrl) {
+      setSasUrl(storedSasUrl);
+    }
+  }, []);
+
+  // Function to save SAS URL to localStorage
+  const saveSasUrlToStorage = (url) => {
+    localStorage.setItem('puzzlekids_sas_url', url);
+  };
+
+  // Function to clear SAS URL from localStorage
+  const clearSasUrlFromStorage = () => {
+    localStorage.removeItem('puzzlekids_sas_url');
+    setSasUrl('');
+  };
+
   // Form state for editing/adding puzzles
   const [formData, setFormData] = useState({
     name: '',
@@ -62,7 +81,11 @@ const AdminPage = () => {
 
       const data = await response.json();
       setPuzzleData(data);
-      toast.success(`Loaded ${data.length} puzzles successfully!`);
+      
+      // Save SAS URL to localStorage when data is successfully loaded
+      saveSasUrlToStorage(sasUrl);
+      
+      toast.success(`Loaded ${data.length} puzzles successfully! SAS URL saved for future use.`);
     } catch (error) {
       console.error('Error loading puzzle data:', error);
       toast.error('Failed to load puzzle data. Please check your SAS URL.');
@@ -278,9 +301,20 @@ const AdminPage = () => {
                 <Download className="mr-2" size={16} />
                 {loading ? 'Loading...' : 'Load Data'}
               </Button>
+              {localStorage.getItem('puzzlekids_sas_url') && (
+                <Button 
+                  onClick={clearSasUrlFromStorage}
+                  variant="outline"
+                  className="text-red-600 border-red-600 hover:bg-red-50"
+                  title="Clear saved SAS URL"
+                >
+                  Clear
+                </Button>
+              )}
             </div>
             <p className="text-sm text-gray-600 mt-2">
-              Enter your Azure Blob Storage SAS URL with read/write permissions to manage puzzle data.
+              Enter your Azure Blob Storage SAS URL with read/write permissions to manage puzzle data. 
+              The URL will be automatically saved when data is successfully loaded and restored on your next visit.
             </p>
           </CardContent>
         </Card>
