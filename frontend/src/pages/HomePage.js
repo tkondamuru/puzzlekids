@@ -5,7 +5,7 @@ import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Switch } from '../components/ui/switch';
-import { Trophy, Clock, Star, Sparkles, Loader2, Search, Filter } from 'lucide-react';
+import { Trophy, Clock, Star, Sparkles, Loader2, Search, Filter, Settings } from 'lucide-react';
 import { fetchPuzzles, getCompletionStats } from '../utils/mockData';
 import { getStoredStats } from '../utils/localStorage';
 
@@ -173,6 +173,12 @@ const HomePage = () => {
               <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 py-2 rounded-xl transform hover:scale-105 transition-all duration-200">
                 <Sparkles className="mr-2" size={16} />
                 View Dashboard
+              </Button>
+            </Link>
+            <Link to="/admin">
+              <Button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/30 font-bold px-6 py-2 rounded-xl transform hover:scale-105 transition-all duration-200">
+                <Settings className="mr-2" size={16} />
+                Admin
               </Button>
             </Link>
           </div>
