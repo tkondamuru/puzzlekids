@@ -8,7 +8,7 @@ import { Badge } from '../components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
-import { ArrowLeft, Plus, Edit, Trash2, Save, Upload, Download, AlertCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Trash2, Save, Upload, Download, AlertCircle, CheckCircle, FileText, Code } from 'lucide-react';
 import { toast } from 'sonner';
 
 const AdminPage = () => {
@@ -19,6 +19,12 @@ const AdminPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [allTags, setAllTags] = useState([]);
   const [imageUploading, setImageUploading] = useState(false);
+
+  // SVG Processing state
+  const [svgFile, setSvgFile] = useState(null);
+  const [svgProcessing, setSvgProcessing] = useState(false);
+  const [svgAnalysis, setSvgAnalysis] = useState(null);
+  const [processedSvg, setProcessedSvg] = useState(null);
 
   // Load SAS URL from localStorage on component mount
   useEffect(() => {
@@ -251,6 +257,151 @@ const AdminPage = () => {
     );
   };
 
+  // SVG Processing Functions
+  const handleSvgFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.includes('svg')) {
+      toast.error('Please select a valid SVG file');
+      return;
+    }
+
+    setSvgFile(file);
+    setSvgAnalysis(null);
+    setProcessedSvg(null);
+  };
+
+  const analyzeSvg = async () => {
+    if (!svgFile) {
+      toast.error('Please upload an SVG file first');
+      return;
+    }
+
+    try {
+      setSvgProcessing(true);
+      const text = await svgFile.text();
+      
+      // Parse SVG content
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'image/svg+xml');
+      const svgElement = doc.querySelector('svg');
+      
+      if (!svgElement) {
+        throw new Error('No SVG element found in file');
+      }
+
+      // Find all groups with IDs starting with 'g' followed by numbers
+      const groups = Array.from(svgElement.querySelectorAll('[id^="g"]')).filter(el => {
+        const id = el.getAttribute('id');
+        return id && /^g\d+$/.test(id); // matches g1, g2, g3, etc.
+      });
+
+      const groupNumbers = groups.map(el => {
+        const id = el.getAttribute('id');
+        return parseInt(id.replace('g', ''));
+      }).filter(num => !isNaN(num)).sort((a, b) => a - b);
+
+      // Find existing target groups
+      const existingTargets = Array.from(svgElement.querySelectorAll('[id^="t"]')).filter(el => {
+        const id = el.getAttribute('id');
+        return id && /^t\d+$/.test(id);
+      });
+
+      const existingTargetNumbers = existingTargets.map(el => {
+        const id = el.getAttribute('id');
+        return parseInt(id.replace('t', ''));
+      }).filter(num => !isNaN(num));
+
+      // Find missing target groups
+      const missingTargets = groupNumbers.filter(num => !existingTargetNumbers.includes(num));
+
+      const analysis = {
+        totalGroups: groupNumbers.length,
+        existingTargets: existingTargetNumbers.length,
+        missingTargets: missingTargets.length,
+        groupNumbers,
+        existingTargetNumbers,
+        missingTargetNumbers: missingTargets,
+        svgContent: text
+      };
+
+      setSvgAnalysis(analysis);
+      toast.success(`Analysis complete! Found ${groupNumbers.length} groups, ${missingTargets.length} missing targets`);
+      
+    } catch (error) {
+      console.error('Error analyzing SVG:', error);
+      toast.error('Failed to analyze SVG file');
+    } finally {
+      setSvgProcessing(false);
+    }
+  };
+
+  const processSvg = async () => {
+    if (!svgAnalysis) {
+      toast.error('Please analyze the SVG first');
+      return;
+    }
+
+    try {
+      setSvgProcessing(true);
+      
+      // Parse the original SVG
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgAnalysis.svgContent, 'image/svg+xml');
+      const svgElement = doc.querySelector('svg');
+      
+      if (!svgElement) {
+        throw new Error('No SVG element found');
+      }
+
+      // Create missing target groups
+      svgAnalysis.missingTargetNumbers.forEach(targetNum => {
+        const sourceGroup = svgElement.querySelector(`#g${targetNum}`);
+        if (sourceGroup) {
+          // Clone the source group
+          const targetGroup = sourceGroup.cloneNode(true);
+          targetGroup.setAttribute('id', `t${targetNum}`);
+          
+          // Add to SVG root
+          svgElement.appendChild(targetGroup);
+        }
+      });
+
+      // Convert back to string
+      const serializer = new XMLSerializer();
+      const processedSvgContent = serializer.serializeToString(doc);
+      
+      setProcessedSvg(processedSvgContent);
+      toast.success(`SVG processed! Added ${svgAnalysis.missingTargetNumbers.length} target groups`);
+      
+    } catch (error) {
+      console.error('Error processing SVG:', error);
+      toast.error('Failed to process SVG');
+    } finally {
+      setSvgProcessing(false);
+    }
+  };
+
+  const downloadProcessedSvg = () => {
+    if (!processedSvg) {
+      toast.error('No processed SVG available');
+      return;
+    }
+
+    const blob = new Blob([processedSvg], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = svgFile ? `processed_${svgFile.name}` : 'processed_puzzle.svg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast.success('Processed SVG downloaded successfully!');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400 p-4">
       <div className="max-w-7xl mx-auto">
@@ -410,6 +561,126 @@ const AdminPage = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* SVG Processing Module */}
+        <Card className="mb-6 bg-white/95 backdrop-blur-sm border-2 border-white/50">
+          <CardHeader>
+            <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <Code className="text-blue-500" />
+              SVG Puzzle Processor
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* File Upload */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Upload SVG File</label>
+                <div className="flex gap-4 items-center">
+                  <input
+                    type="file"
+                    accept=".svg"
+                    onChange={handleSvgFileUpload}
+                    className="hidden"
+                    id="svg-upload"
+                  />
+                  <label htmlFor="svg-upload">
+                    <Button variant="outline" disabled={svgProcessing} asChild>
+                      <span>
+                        <FileText className="mr-2" size={16} />
+                        {svgFile ? svgFile.name : 'Choose SVG File'}
+                      </span>
+                    </Button>
+                  </label>
+                  {svgFile && (
+                    <Button 
+                      onClick={analyzeSvg} 
+                      disabled={svgProcessing}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      {svgProcessing ? 'Analyzing...' : 'Analyze SVG'}
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Analysis Results */}
+              {svgAnalysis && (
+                <div className="bg-gray-50 rounded-lg p-4 border">
+                  <h4 className="font-semibold text-gray-800 mb-3">Analysis Results</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">{svgAnalysis.totalGroups}</div>
+                      <div className="text-sm text-gray-600">Total Groups (g1, g2, ...)</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">{svgAnalysis.existingTargets}</div>
+                      <div className="text-sm text-gray-600">Existing Targets (t1, t2, ...)</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-600">{svgAnalysis.missingTargets}</div>
+                      <div className="text-sm text-gray-600">Missing Targets</div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">Group Numbers:</span>
+                      <div className="flex flex-wrap gap-1">
+                        {svgAnalysis.groupNumbers.map(num => (
+                          <Badge key={num} variant="outline" className="text-xs">
+                            g{num}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {svgAnalysis.missingTargetNumbers.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">Missing Targets:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {svgAnalysis.missingTargetNumbers.map(num => (
+                            <Badge key={num} variant="destructive" className="text-xs">
+                              t{num}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {svgAnalysis.missingTargets > 0 && (
+                    <div className="mt-4">
+                      <Button 
+                        onClick={processSvg} 
+                        disabled={svgProcessing}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        {svgProcessing ? 'Processing...' : 'Generate Missing Targets'}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Download Processed SVG */}
+              {processedSvg && (
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <h4 className="font-semibold text-green-800 mb-2">SVG Processing Complete!</h4>
+                  <p className="text-sm text-green-700 mb-3">
+                    The SVG has been processed and {svgAnalysis?.missingTargets || 0} target groups have been added.
+                  </p>
+                  <Button 
+                    onClick={downloadProcessedSvg}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Download className="mr-2" size={16} />
+                    Download Processed SVG
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Edit/Add Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
