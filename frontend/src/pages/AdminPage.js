@@ -158,7 +158,7 @@ const AdminPage = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const publicUrl = `${containerUrl}/${fileName}`;
+      const publicUrl = `${baseUrl}/${fileName}`;
       toast.success('Image uploaded successfully!');
       return publicUrl;
     } catch (error) {
