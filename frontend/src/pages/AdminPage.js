@@ -142,9 +142,8 @@ const AdminPage = () => {
     try {
       setImageUploading(true);
       const baseUrl = sasUrl.split('?')[0];
-      const containerUrl = baseUrl.substring(0, baseUrl.lastIndexOf('/'));
       const fileName = `${Date.now()}_${file.name}`;
-      const imageUrl = `${containerUrl}/${fileName}?${sasUrl.split('?')[1]}`;
+      const imageUrl = `${baseUrl}/${fileName}?${sasUrl.split('?')[1]}`;
 
       const response = await fetch(imageUrl, {
         method: 'PUT',
